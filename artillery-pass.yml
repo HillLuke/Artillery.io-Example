@@ -1,0 +1,38 @@
+config:
+  target: "http://localhost:5215" # http - change if ran on different port
+  processor: './processor.js' # path to the processor file containing functions
+  phases:
+    - name: "Phase 1: 1 request per second"
+      duration: 5
+      arrivalRate: 1
+    - name: "Phase 2: 5 request per second"
+      duration: 5
+      arrivalRate: 5
+    - name: "Phase 2: ramp to 10 request per second"
+      duration: 5
+      arrivalRate: 5
+      rampTo: 10
+    - name: "Phase 3: 10 request per second"
+      duration: 5
+      arrivalRate: 10
+  plugins:
+    expect: {} 
+  variables:
+    user-agent: "Artillery" # set user-agent variable
+scenarios:
+  - flow:
+      - function: "generateRandomUser" # function from processor.js to generate random user
+      - get:
+          url: "/Hello"
+          headers:
+            user: "{{ user }}" # set user header from context.vars.user in processor.js > generateRandomUser function
+            user-agent: "{{ user-agent }}" # set user-agent header from config
+          capture: # capture the response
+            - json: "$"
+              as: "response"              
+          expect: # expect the response to have a status code of 200 and a username property
+            - statusCode: 200
+            - hasProperty: "username"
+      - log: "Request made with user: {{ user }} and received response: {{ response }}"
+
+
