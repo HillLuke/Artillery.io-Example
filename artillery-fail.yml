@@ -1,0 +1,21 @@
+config:
+  target: "http://localhost:5215"
+  phases:
+    - name: "Phase 1: 1 request per second"
+      duration: 10
+      arrivalRate: 1
+  plugins:
+    expect: {} 
+  variables:
+    user-agent: "Artillery"    
+scenarios:
+  - flow:
+      - get:
+          url: "/Hello"
+          headers:
+            user-agent: "{{ user-agent }}"          
+          expect:
+            - statusCode: 200
+            - hasProperty: "username"
+
+
